@@ -20,18 +20,24 @@ class App extends React.Component {
     timeMin: 25,
     timeSec: 0,
     breakMin: 5,
-    breakSec: 0
+    breakSec: 0,
+    isPaused: true,
+    isSession: true
   };
   reset = () => {
     this.setState({
       timeMin: 25,
       timeSec: 0,
       breakMin: 5,
-      breakSec: 0
+      breakSec: 0,
+      isPaused: true,
+      isSession: true
     });
+    clearInterval(this.time);
+    clearInterval(this.breakTime);
   };
   incrementBreak = () => {
-    if(this.state.breakMin === 60) return;
+    if (this.state.breakMin === 60) return;
     this.setState({
       breakMin: this.state.breakMin + 1
     });
@@ -43,17 +49,93 @@ class App extends React.Component {
     });
   };
   incrementTime = () => {
-    if(this.state.timeMin === 60) return;
+    if (this.state.timeMin === 60) return;
     this.setState({
-      timeMin: this.state.timeMin + 1
+      timeMin: this.state.timeMin + 1,
+      timeSec: 0
     });
   };
   decrementTime = () => {
     if (this.state.timeMin === 1) return;
     this.setState({
-      timeMin: this.state.timeMin - 1
+      timeMin: this.state.timeMin - 1,
+      timeSec: 0
     });
   };
+  startTimer = () => {
+    clearInterval(this.breakTime);
+    this.setState({ isPaused: false });
+    this.time = setInterval(() => {
+      if (this.state.timeSec === 0 && this.state.timeMin === 0) {
+        this.setState({
+          isSession: false,
+          timeMin: 25,
+          timeSec: 0
+        });
+        this.startBreak();
+        return;
+      }
+      if (this.state.timeSec === 0) {
+        this.setState({
+          timeMin: this.state.timeMin - 1,
+          timeSec: 60
+        });
+      }
+      this.setState({
+        timeSec: this.state.timeSec - 1
+      });
+    }, 1000);
+  };
+  stopTimer = () => {
+    this.setState({ isPaused: true });
+    clearInterval(this.time);
+  };
+  toggleTimer = () => {
+    this.state.isPaused ? this.startTimer() : this.stopTimer();
+  };
+  renderTimeText = () => {
+    const { timeMin, timeSec } = this.state;
+    const minutes = timeMin < 10 ? "0" + timeMin : timeMin;
+    const seconds = timeSec < 10 ? "0" + timeSec : timeSec;
+    return `${minutes}:${seconds}`;
+  };
+  startBreak = () => {
+    clearInterval(this.time);
+    this.breakTime = setInterval(() => {
+      if (this.state.breakSec === 0 && this.state.breakMin === 0) {
+        this.setState({
+          isSession: true,
+          breakMin: 5,
+          breakSec: 0
+        });
+        this.startTimer();
+        return;
+      }
+      if (this.state.breakSec === 0) {
+        this.setState({
+          breakMin: this.state.breakMin - 1,
+          breakSec: 60
+        });
+      }
+      this.setState({
+        breakSec: this.state.breakSec - 1
+      });
+    }, 1000);
+  };
+  stopBreak = () => {
+    this.setState({ isPaused: true });
+    clearInterval(this.breakTime);
+  };
+  toggleBreak = () => {
+    this.state.isPaused ? this.startBreak() : this.stopBreak();
+  };
+  renderBreakText = () => {
+    const { breakMin, breakSec } = this.state;
+    const minutes = breakMin < 10 ? "0" + breakMin : breakMin;
+    const seconds = breakSec < 10 ? "0" + breakSec : breakSec;
+    return `${minutes}:${seconds}`;
+  };
+
   render() {
     return (
       <AppWrapper>
@@ -68,7 +150,14 @@ class App extends React.Component {
           incrementTime={this.incrementTime}
           decrementTime={this.decrementTime}
         />
-        <Timer reset={this.reset} min={this.state.timeMin} sec={this.state.timeSec}/>
+        <Timer
+          isSession={this.state.isSession}
+          reset={this.reset}
+          renderTimeText={this.renderTimeText}
+          renderBreakText={this.renderBreakText}
+          toggleTimer={this.toggleTimer}
+          toggleBreak={this.toggleBreak}
+        />
       </AppWrapper>
     );
   }

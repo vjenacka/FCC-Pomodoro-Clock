@@ -32,14 +32,15 @@ export class Timer extends Component {
     sec:0
   }
   render() {
+    const {isSession}=this.props;
     return (
       <div>
         <TimerWrapper>
-          <span id="timer-label">Session</span>
-          <span id="time-left">{this.props.min}:{this.props.sec}</span>
+          <span id="timer-label">{isSession? 'Session' : 'Break'}</span>
+          <span id="time-left">{isSession? this.props.renderTimeText() : this.props.renderBreakText()}</span>
         </TimerWrapper>
         <ButtonsWrapper>
-          <button id='start_stop'><i className="fas fa-play"></i><i className="fas fa-pause"></i></button>
+          <button id='start_stop' onClick={()=>{isSession?this.props.toggleTimer():this.props.toggleBreak()}}><i className="fas fa-play"></i><i className="fas fa-pause"></i></button>
           <button id='reset' onClick={()=>{this.props.reset()}}><i className="fas fa-sync-alt"></i></button>
         </ButtonsWrapper>
       </div>
