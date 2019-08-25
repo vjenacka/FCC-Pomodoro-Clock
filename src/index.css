@@ -5,6 +5,7 @@
   border: none;
   box-sizing: border-box;
   font-family: "Righteous", cursive;
+  user-select: none;
 }
 
 body{

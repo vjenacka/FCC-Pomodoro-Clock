@@ -6,7 +6,7 @@ import Timer from "./components/Timer";
 
 const AppWrapper = styled.div`
   width: 50%;
-  margin: 15vh auto 0 auto;
+  margin: 12vh auto 0 auto;
   text-align: center;
 
   h1 {
@@ -35,6 +35,8 @@ class App extends React.Component {
     });
     clearInterval(this.time);
     clearInterval(this.breakTime);
+    this.audioBeep.currentTime=0;
+    this.audioBeep.pause();
   };
   incrementBreak = () => {
     if (this.state.breakMin === 60) return;
@@ -67,6 +69,7 @@ class App extends React.Component {
     this.setState({ isPaused: false });
     this.time = setInterval(() => {
       if (this.state.timeSec === 0 && this.state.timeMin === 0) {
+        this.audioBeep.play();
         this.setState({
           isSession: false,
           timeMin: 25,
@@ -103,6 +106,7 @@ class App extends React.Component {
     clearInterval(this.time);
     this.breakTime = setInterval(() => {
       if (this.state.breakSec === 0 && this.state.breakMin === 0) {
+        this.audioBeep.play();
         this.setState({
           isSession: true,
           breakMin: 5,
@@ -158,6 +162,13 @@ class App extends React.Component {
           toggleTimer={this.toggleTimer}
           toggleBreak={this.toggleBreak}
         />
+        <audio
+          id="beep"
+          src="https://goo.gl/65cBl1"
+          ref={audio => {
+            this.audioBeep = audio;
+          }}
+        ></audio>
       </AppWrapper>
     );
   }
